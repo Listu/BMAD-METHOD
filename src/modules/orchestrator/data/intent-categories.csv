@@ -1,0 +1,11 @@
+category,description,example_prompts,priority
+new_project,"User wants to start a new project","Je veux creer une app|New project|Start something new|Nouveau projet|Build a website",1
+continue,"User wants to proceed with current work","Continue|Next|What's next|On continue|Go on|Proceed",2
+specific_workflow,"User requests a specific workflow","Create PRD|Make architecture|Write tests|Design UX|Plan sprint|Run code review",3
+status,"User wants to know current state","Where are we|Status|What's done|Progress|What phase",4
+help,"User needs guidance about capabilities","Help|What can you do|How does this work|Comment ca marche",5
+memory_query,"User wants to query project memory","What do you remember|Show memory|Recall|Qu'est-ce que tu sais",6
+memory_add,"User wants to add to memory","Remember this|Note that|Add to memory|Retiens",7
+switch_project,"User wants to change active project","Switch to|Work on|Change project|Go to project",8
+multi_project,"User gives instructions for multiple projects","On project X do Y and on project Z do W",9
+unknown,"Cannot determine intent","",99

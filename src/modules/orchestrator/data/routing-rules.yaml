@@ -1,0 +1,128 @@
+# Routing Rules for BMAD Orchestrator
+# Defines how intents are mapped to BMAD workflows
+
+version: "1.0"
+
+# Confidence thresholds
+thresholds:
+  auto_route: 0.85     # Automatically route if confidence >= this
+  suggest: 0.60        # Suggest with confirmation if confidence >= this
+  clarify: 0.0         # Ask for clarification if below suggest threshold
+
+# Intent-based routing rules
+routing_rules:
+  new_project:
+    no_status_file:
+      action: "invoke"
+      workflow: "workflow-init"
+      module: "bmm"
+    has_status_file:
+      action: "warn"
+      message: "A project already exists here. Would you like to continue it or start fresh?"
+      options:
+        - label: "Continue existing project"
+          action: "invoke"
+          workflow: "workflow-status"
+        - label: "Start fresh (reset)"
+          action: "reset_and_invoke"
+          workflow: "workflow-init"
+
+  continue:
+    no_status_file:
+      action: "invoke"
+      workflow: "workflow-init"
+      message: "No project found. Let's start one."
+    has_status_file:
+      action: "route_to_next"
+      source: "workflow-status.yaml"
+      fallback: "workflow-status"
+
+  specific_workflow:
+    action: "fuzzy_match"
+    source: "workflow-manifest.csv"
+    single_match:
+      action: "invoke"
+    multiple_matches:
+      action: "present_options"
+      include_recommendations: true
+    no_match:
+      action: "suggest_similar"
+      fallback: "help"
+
+  status:
+    action: "invoke"
+    workflow: "workflow-status"
+    mode: "interactive"
+
+  help:
+    action: "display_capabilities"
+    include:
+      - "Available workflows"
+      - "Current project state"
+      - "Suggested next actions"
+
+  memory_query:
+    action: "query_memory"
+    types: ["errors", "decisions", "lessons", "patterns"]
+
+  memory_add:
+    action: "add_to_memory"
+    type: "manual_note"
+    require_confirmation: false
+
+  switch_project:
+    action: "switch_context"
+    source: "registry.yaml"
+    on_not_found: "offer_discovery"
+
+  multi_project:
+    action: "parse_multi"
+    delegate: "background"
+    aggregate_results: true
+
+  unknown:
+    low_confidence:
+      action: "clarify"
+      question: "I'm not sure I understand. Could you rephrase or tell me more about what you'd like to do?"
+    medium_confidence:
+      action: "confirm"
+      message: "I think you want to {best_guess}. Is that right?"
+
+# Workflow keyword mapping for fuzzy matching
+workflow_keywords:
+  prd:
+    - "prd"
+    - "product requirements"
+    - "requirements document"
+    - "product spec"
+  architecture:
+    - "architecture"
+    - "technical design"
+    - "system design"
+    - "tech spec"
+  epics:
+    - "epics"
+    - "stories"
+    - "user stories"
+    - "backlog"
+  sprint:
+    - "sprint"
+    - "sprint planning"
+    - "iteration"
+  code-review:
+    - "code review"
+    - "review code"
+    - "pr review"
+  test:
+    - "test"
+    - "testing"
+    - "tests"
+    - "qa"
+  brainstorm:
+    - "brainstorm"
+    - "ideation"
+    - "ideas"
+  research:
+    - "research"
+    - "investigate"
+    - "explore"

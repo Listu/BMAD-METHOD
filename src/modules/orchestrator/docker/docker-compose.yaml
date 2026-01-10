@@ -1,0 +1,32 @@
+# BMAD Orchestrator - Memory Service
+# ChromaDB for per-project persistent memory
+#
+# Usage:
+#   Start: docker-compose up -d
+#   Stop:  docker-compose down
+#   Logs:  docker-compose logs -f bmad-memory
+
+version: '3.8'
+
+services:
+  bmad-memory:
+    image: chromadb/chroma:latest
+    container_name: bmad-memory
+    ports:
+      - "${CHROMA_PORT:-8000}:8000"
+    volumes:
+      - bmad-memory-data:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - ANONYMIZED_TELEMETRY=FALSE
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  bmad-memory-data:
+    driver: local

@@ -1,0 +1,82 @@
+code: orchestrator
+name: "BMad Orchestrator - AI-Powered Project Orchestration"
+header: "BMad Orchestrator"
+subheader: "Super Agent for natural language BMAD interaction and multi-project management"
+default_selected: false # Optional module - must be explicitly selected
+
+# BMAD-orchestrator adds:
+# - Natural language intent detection (no BMAD knowledge required)
+# - Multi-project management from single interface
+# - Per-project persistent memory (VectorDB)
+# - Quality Gate validation (build/tests before "done")
+# - Background task delegation
+
+# Dependencies:
+# - BMAD Core and at least one workflow module (bmm, bmgd, etc.)
+# - Docker (for ChromaDB/VectorDB)
+# - Node.js >= 20
+
+# Variables from Core Config:
+## user_name
+## communication_language
+## output_folder
+
+# Registry location (where project list is stored)
+registry_path:
+  prompt: "Where should the project registry be stored?"
+  default: "~/.bmad"
+  result: "{value}"
+
+# Memory configuration
+memory_enabled:
+  prompt:
+    - "Enable per-project persistent memory?"
+    - "Requires Docker with ChromaDB."
+  default: true
+  result: "{value}"
+
+memory_docker_port:
+  prompt: "ChromaDB Docker port (default 8000)?"
+  default: "8000"
+  result: "{value}"
+  condition: "{memory_enabled}"
+
+# Quality Gate configuration
+quality_gate_enabled:
+  prompt:
+    - "Enable automatic Quality Gate?"
+    - "Runs build and tests before marking tasks complete."
+  default: true
+  result: "{value}"
+
+quality_gate_strict:
+  prompt: "Strict mode? (block task completion on any failure)"
+  default: false
+  result: "{value}"
+  condition: "{quality_gate_enabled}"
+
+# Background delegation
+background_delegation_enabled:
+  prompt:
+    - "Enable background task delegation?"
+    - "Allows parallel work across projects via multiple Claude sessions."
+  default: true
+  result: "{value}"
+
+# =============================================================================
+# WORKFLOWS (Skills)
+# =============================================================================
+workflows:
+  orchestrate:
+    path: workflows/orchestrate
+    description: "Natural language BMAD - talk to your projects"
+    aliases: ["orch", "o", "bmad"]
+    user_invocable: true
+
+# =============================================================================
+# AGENTS
+# =============================================================================
+agents:
+  orchestrator:
+    path: agents/orchestrator.agent.yaml
+    description: "Super agent for project orchestration"
