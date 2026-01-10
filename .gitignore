@@ -44,6 +44,8 @@ CLAUDE.local.md
 .claude/settings.local.json
 
 # Project-specific
+projects/*
+!projects/.gitkeep
 _bmad-core
 _bmad-creator-tools
 flattened-codebase.xml

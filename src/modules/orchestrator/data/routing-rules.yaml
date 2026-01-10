@@ -75,6 +75,32 @@ routing_rules:
     source: "registry.yaml"
     on_not_found: "offer_discovery"
 
+  clone_project:
+    action: "clone_repo"
+    target_folder: "projects/"
+    steps:
+      - validate_url: true
+      - git_clone: "{url} projects/{name}"
+      - install_bmad: "projects/{name}"
+      - register_project: true
+      - switch_to_new: true
+
+  create_project:
+    action: "create_project"
+    target_folder: "projects/"
+    steps:
+      - create_folder: "projects/{name}"
+      - install_bmad: "projects/{name}"
+      - register_project: true
+      - switch_to_new: true
+      - invoke_workflow: "workflow-init"
+
+  list_projects:
+    action: "list_all_projects"
+    source: "registry.yaml"
+    show_status: true
+    highlight_active: true
+
   multi_project:
     action: "parse_multi"
     delegate: "background"
