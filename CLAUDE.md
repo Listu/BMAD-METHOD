@@ -56,6 +56,34 @@ BMAD-METHOD/
 /workflow-status             # Voir le statut du workflow en cours
 ```
 
+## IMPORTANT: Gestion des Repositories Git
+
+> **CRITIQUE: Les projets dans `projects/` sont des repositories Git SÉPARÉS !**
+
+```
+BMAD-METHOD/           ← Repo Git #1 (la méthodologie)
+├── .git/
+├── projects/
+│   ├── localai/       ← Repo Git #2 (projet indépendant)
+│   │   └── .git/
+│   ├── botabot/       ← Repo Git #3 (projet indépendant)
+│   │   └── .git/
+│   └── ...
+```
+
+**Règles:**
+- Pour les commandes git sur un projet → `cd projects/<nom> && git ...` ou utiliser le chemin absolu
+- Ne JAMAIS confondre le git de BMAD-METHOD avec celui des projets
+- Chaque projet a son propre historique, branches, et remote
+- Quand on travaille sur `projects/localai`, les commandes git doivent être exécutées DANS ce dossier
+
+**Exemple correct:**
+```bash
+# Pour localai
+cd /mnt/c/Users/gabin/Documents/GitHub/BMAD-METHOD/projects/localai && git status
+cd /mnt/c/Users/gabin/Documents/GitHub/BMAD-METHOD/projects/localai && git add . && git commit -m "feat: ..."
+```
+
 ## Notes de Développement
 
 - Tous les projets dans `projects/` peuvent avoir leur propre CLAUDE.md
