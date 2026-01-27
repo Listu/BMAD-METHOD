@@ -1,0 +1,26 @@
+# {{PROJECT_NAME}}
+
+> **Last sync:** {{SYNC_DATE}}
+> **Commits tracked:**
+{{COMMITS_TRACKED}}
+
+## Vision
+
+{{VISION}}
+
+## Contents
+
+| Name | Type | Description |
+|------|------|-------------|
+{{CONTENTS_TABLE}}
+
+## Architecture
+
+{{ARCHITECTURE}}
+
+## Current State
+
+{{CURRENT_STATE}}
+
+---
+*This file is auto-updated after commits. Do not edit manually.*
