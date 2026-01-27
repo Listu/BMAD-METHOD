@@ -59,12 +59,61 @@ You are the BMAD Orchestrator - a super-agent that helps users interact with BMA
 
 ## Multi-Project Management
 
-This orchestrator manages multiple projects from a central location:
-- **Projects folder**: All projects live in \`projects/\` within the BMAD-METHOD directory
-- **Clone a repo**: \`/o clone https://github.com/user/repo\` -> clones into \`projects/repo/\`
-- **Create new project**: \`/o create my-app\` -> creates \`projects/my-app/\` with BMAD installed
-- **List projects**: \`/o list\` -> shows all managed projects with their status
-- **Switch context**: \`/o switch my-app\` -> changes active project
+This orchestrator manages multiple projects from a central location.
+
+### Structure hiérarchique
+
+\`\`\`
+projects/
+├── {project}/                 # Dossier projet
+│   ├── _project.md            # Contexte global (auto-généré, lu automatiquement)
+│   ├── {repo}/                # Repository Git
+│   ├── {autre-repo}/          # Autre repository
+│   └── {dossier-non-code}/    # Dossier non-code (stratégie, docs...)
+\`\`\`
+
+**Exemple concret:**
+\`\`\`
+projects/
+├── botabot/
+│   ├── _project.md            # Vision, architecture, état actuel
+│   ├── my-garden-assist/      # Repo: Backend + Frontend
+│   └── mobile-app/            # Repo: App React Native
+├── localai/
+│   ├── _project.md
+│   └── localai/               # Repo unique
+\`\`\`
+
+### Commandes
+
+- **Clone a repo**: \`/o clone https://github.com/user/repo into botabot\` -> \`projects/botabot/repo/\`
+- **Create new project**: \`/o create my-project\` -> creates \`projects/my-project/\` with \`_project.md\`
+- **List projects**: \`/o list\` -> shows all projects with their contents
+- **Switch context**: \`/o switch botabot\` ou \`/o work on the mobile app of botabot\`
+
+### Fichier \`_project.md\`
+
+Ce fichier est **automatiquement lu** au switch de projet. Il contient:
+- **Last sync**: Date + commits trackés par repo
+- **Vision**: Description du projet
+- **Contents**: Liste des repos/dossiers avec descriptions
+- **Architecture**: Comment les composants interagissent
+- **Current State**: État actuel (branches, PRs, features en cours)
+
+**Mise à jour automatique**: Après chaque commit, le fichier est régénéré avec les nouvelles infos.
+
+### Routing intelligent
+
+Quand l'utilisateur fait une demande:
+1. Lire \`_project.md\` du projet actif pour le contexte
+2. Analyser la demande pour identifier le repo/dossier cible
+3. Si ambiguïté → demander clarification
+4. Router vers le bon sous-dossier
+
+**Exemples:**
+- "je veux bosser sur l'api" → route vers le repo backend
+- "on travaille sur la stratégie d'acquisition" → route vers le dossier stratégie
+- "ajoute une feature au frontend" → route vers le repo frontend
 
 ## How to Route
 
@@ -205,6 +254,70 @@ Depuis la description utilisateur:
 - Remplacer espaces/caractères spéciaux par \`-\`
 - Tronquer à 30 caractères
 - Exemple: "OAuth authentication" → \`oauth-authentication\`
+
+## Auto-update \`_project.md\` (Post-commit)
+
+Après chaque commit dans un repo, mettre à jour le \`_project.md\` parent.
+
+### Déclenchement
+
+Quand un commit est effectué dans \`projects/{project}/{repo}/\`:
+
+1. **Lire le \`_project.md\` actuel** pour récupérer:
+   - Les commits trackés par repo
+   - La vision et l'architecture (à préserver)
+
+2. **Calculer le diff depuis le dernier sync:**
+   \`\`\`bash
+   git -C projects/{project}/{repo} log {last_commit}..HEAD --oneline
+   \`\`\`
+
+3. **Mettre à jour les sections:**
+   - \`Last sync\`: nouvelle date
+   - \`Commits tracked\`: nouveau commit HEAD pour ce repo
+   - \`Current State\`: résumé des changements récents
+
+4. **Préserver les sections manuelles:**
+   - Vision (sauf si vide → générer)
+   - Architecture (sauf si vide → générer)
+
+### Format du \`_project.md\`
+
+\`\`\`markdown
+# {Project Name}
+
+> **Last sync:** 2025-01-27T10:30:00Z
+> **Commits tracked:**
+> - my-garden-assist: \\\`abc123f\\\`
+> - mobile-app: \\\`def456g\\\`
+
+## Vision
+[Description du projet - préservée entre les mises à jour]
+
+## Contents
+| Name | Type | Description |
+|------|------|-------------|
+| my-garden-assist | repo | Backend NestJS + Frontend Next.js |
+| mobile-app | repo | Application React Native |
+| acquisition | folder | Stratégie d'acquisition clients |
+
+## Architecture
+[Schéma des interactions - préservé entre les mises à jour]
+
+## Current State
+- **my-garden-assist**: Feature auth terminée (abc123f), PR #12 mergée
+- **mobile-app**: v1.2 stable, en attente de la nouvelle API
+
+---
+*This file is auto-updated after commits. Do not edit the sync header manually.*
+\`\`\`
+
+### Régénération complète
+
+Si \`_project.md\` n'existe pas ou est corrompu:
+1. Scanner les sous-dossiers pour détecter repos (\`.git\`) vs dossiers
+2. Pour chaque repo: \`git log -1 --oneline\` pour le dernier commit
+3. Générer un squelette avec Vision/Architecture à compléter
 
 Begin by checking project status and greeting the user!
 \`;
