@@ -95,8 +95,119 @@ When listing or detecting projects:
 - Correct: \`ls projects/\` or \`ls -la projects/\`
 - Wrong: \`Glob("projects/*")\`
 
+## Git Worktree Management (Isolation des features)
+
+L'orchestrateur gère automatiquement les git worktrees pour isoler le travail sur les features/fixes.
+
+### Emplacement des worktrees
+- **Dossier:** \`projects/{projet}/.worktrees/{slug}/\`
+- **Convention de branche:** \`feat/{slug}\` ou \`fix/{slug}\`
+
+### Détection automatique
+
+| Intent | Mots-clés (FR/EN) | Action |
+|--------|-------------------|--------|
+| Feature | "ajouter", "add", "implement", "build", "créer", "nouvelle fonctionnalité" | Proposer worktree |
+| Bugfix | "fix", "bug", "corriger", "réparer", "issue" | Proposer worktree |
+| Merge done | "merged", "fusionné", "feature terminée" | Cleanup worktree |
+
+### Flow automatique - Nouvelle feature/fix
+
+Quand une intention feature/fix est détectée:
+
+1. **Vérifier les worktrees existants:**
+   \`\`\`bash
+   cd projects/{projet} && git worktree list
+   \`\`\`
+
+2. **Proposer la création:**
+   \`\`\`
+   "Cette tâche semble être une [feature/fix].
+   Créer une branche isolée \`feat/{slug}\` dans \`.worktrees/{slug}/\` ?
+   [y] Oui, créer le worktree (recommandé)
+   [n] Non, travailler sur la branche actuelle"
+   \`\`\`
+
+3. **Si oui, créer le worktree:**
+   \`\`\`bash
+   cd projects/{projet}
+   mkdir -p .worktrees
+   git checkout -b feat/{slug}
+   git checkout -
+   git worktree add .worktrees/{slug} feat/{slug}
+   \`\`\`
+
+4. **Informer l'utilisateur:**
+   \`\`\`
+   "Worktree créé: .worktrees/{slug}/
+   Branche: feat/{slug}
+   Lancement du workflow de développement..."
+   \`\`\`
+
+5. **Lancer le workflow approprié** (quick-dev ou dev-story)
+
+### Flow - Merge terminé
+
+Quand l'utilisateur indique que la feature est mergée:
+
+1. **Vérifier le merge:**
+   \`\`\`bash
+   cd projects/{projet} && git branch --merged main | grep {branch}
+   \`\`\`
+
+2. **Si mergé, cleanup:**
+   \`\`\`bash
+   git worktree remove .worktrees/{slug}
+   git branch -d feat/{slug}
+   \`\`\`
+
+3. **Retour sur main:**
+   \`\`\`
+   "Worktree nettoyé. Retour sur main."
+   \`\`\`
+
+4. **Si NON mergé:** Avertir et demander confirmation
+
+### Détection des worktrees orphelins
+
+Au démarrage de \`/o\` ou \`/o list\`:
+
+1. Lister les worktrees du projet actif:
+   \`\`\`bash
+   cd projects/{projet} && git worktree list
+   \`\`\`
+
+2. Pour chaque worktree, vérifier la date du dernier commit:
+   \`\`\`bash
+   git -C .worktrees/{slug} log -1 --format=%ci
+   \`\`\`
+
+3. Si >7 jours sans activité, alerter:
+   \`\`\`
+   "⚠️ Worktrees inactifs détectés:
+   - .worktrees/feat-oauth (12 jours)
+   - .worktrees/fix-login (8 jours)
+
+   Utiliser \`/o cleanup-worktrees\` pour les gérer."
+   \`\`\`
+
+### Override utilisateur
+
+Si l'utilisateur dit "pas de worktree", "sur main", "direct":
+- Ne pas créer de worktree
+- Procéder sur la branche actuelle
+- Mémoriser la préférence pour la session
+
+### Génération du slug
+
+Depuis la description utilisateur:
+- Lowercase
+- Remplacer espaces/caractères spéciaux par \`-\`
+- Tronquer à 30 caractères
+- Exemple: "OAuth authentication" → \`oauth-authentication\`
+
 Begin by checking project status and greeting the user!
-`;
+\`;
 
 /**
  * Create orchestrator command files in .claude/commands/

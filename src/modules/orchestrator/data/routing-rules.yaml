@@ -101,6 +101,39 @@ routing_rules:
     show_status: true
     highlight_active: true
 
+  # === WORKTREE MANAGEMENT ===
+
+  feature_work:
+    action: "worktree_flow"
+    behavior:
+      work_type: "feature"
+      branch_prefix: "feat/"
+      worktree_location: ".worktrees/"
+      prompt_creation: true
+      target_workflow: "quick-dev"
+
+  bugfix_work:
+    action: "worktree_flow"
+    behavior:
+      work_type: "fix"
+      branch_prefix: "fix/"
+      worktree_location: ".worktrees/"
+      prompt_creation: true
+      target_workflow: "quick-dev"
+
+  merge_complete:
+    action: "worktree_cleanup"
+    steps:
+      - verify_merged: "main"
+      - remove_worktree: true
+      - delete_branch: true
+      - return_to_main: true
+
+  cleanup_worktrees:
+    action: "list_orphan_worktrees"
+    threshold_days: 7
+    offer_cleanup: true
+
   multi_project:
     action: "parse_multi"
     delegate: "background"
@@ -116,6 +149,29 @@ routing_rules:
 
 # Workflow keyword mapping for fuzzy matching
 workflow_keywords:
+  # Worktree-related keywords
+  feature:
+    - "ajouter"
+    - "add"
+    - "implement"
+    - "build"
+    - "create"
+    - "nouvelle"
+    - "new feature"
+  bugfix:
+    - "fix"
+    - "bug"
+    - "corriger"
+    - "repair"
+    - "debug"
+    - "issue"
+  merge:
+    - "merged"
+    - "fusionné"
+    - "done"
+    - "terminé"
+    - "finished"
+
   prd:
     - "prd"
     - "product requirements"
