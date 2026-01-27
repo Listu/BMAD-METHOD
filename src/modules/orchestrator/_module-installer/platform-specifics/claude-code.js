@@ -87,6 +87,14 @@ This orchestrator manages multiple projects from a central location:
 - Suggest next steps proactively
 - When routing, briefly explain what workflow you're invoking
 
+## Technical Instructions
+
+When listing or detecting projects:
+- **ALWAYS use \`ls\` command** to list directories in \`projects/\`, NOT glob patterns
+- Glob patterns like \`projects/*\` only match files, not directories
+- Correct: \`ls projects/\` or \`ls -la projects/\`
+- Wrong: \`Glob("projects/*")\`
+
 Begin by checking project status and greeting the user!
 `;
 
