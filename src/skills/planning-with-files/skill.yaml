@@ -1,0 +1,77 @@
+---
+bmad:
+  version: "2.0"
+  type: skill
+  id: planning-with-files
+  name: Planning with Files
+  description: |
+    Manus-style planning skill that maintains context through files.
+    Creates and maintains task_plan.md, findings.md, and progress.md
+    to track planning state across LLM sessions.
+  entry-command: /plan
+  aliases:
+    - plan
+    - planning
+    - task-plan
+  templates:
+    - task-plan.md
+    - findings.md
+    - progress.md
+  scripts: []
+  hooks:
+    SessionStart:
+      - action: load-planning-context
+    StepComplete:
+      - action: update-progress
+    SessionStop:
+      - action: save-planning-state
+---
+
+skill:
+  output_directory: "_bmad-output/planning"
+
+  files:
+    task_plan:
+      name: "task_plan.md"
+      description: "Main task breakdown with checklist"
+      auto_create: true
+
+    findings:
+      name: "findings.md"
+      description: "Research findings and discoveries"
+      auto_create: true
+
+    progress:
+      name: "progress.md"
+      description: "Session progress log"
+      auto_create: true
+
+  workflow:
+    - step: analyze
+      description: "Analyze the task and break it down"
+      output: task_plan
+
+    - step: research
+      description: "Gather information and findings"
+      output: findings
+
+    - step: execute
+      description: "Execute tasks one by one"
+      output: progress
+
+    - step: review
+      description: "Review completed work"
+      output: task_plan
+
+  context_loading:
+    on_start:
+      - read: task_plan
+        check: exists
+      - read: findings
+        optional: true
+      - read: progress
+        optional: true
+
+  auto_save:
+    interval: after_each_step
+    format: markdown

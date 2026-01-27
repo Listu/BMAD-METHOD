@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Planning with Files Skill
+  Manus-style planning that maintains context through files
+
+  This skill creates a structured planning workflow where:
+  1. task_plan.md contains the breakdown of work
+  2. findings.md captures research and discoveries
+  3. progress.md logs what's been done
+
+  These files persist across sessions, enabling long-running tasks.
+-->
+
+<skill id="planning-with-files">
+  <metadata>
+    <name>Planning with Files</name>
+    <version>1.0.0</version>
+    <trigger>/plan</trigger>
+  </metadata>
+
+  <context>
+    <description>
+      You are entering Planning Mode. In this mode, you maintain structured
+      documentation files to track your planning and progress.
+    </description>
+
+    <files>
+      <file id="task_plan" path="_bmad-output/planning/task_plan.md">
+        The main planning document. Contains:
+        - Task overview and goals
+        - Breakdown into subtasks (checkbox format)
+        - Dependencies between tasks
+        - Current status markers
+      </file>
+
+      <file id="findings" path="_bmad-output/planning/findings.md">
+        Research and discovery log. Contains:
+        - Key findings from exploration
+        - Important code locations
+        - Architecture decisions
+        - Constraints discovered
+      </file>
+
+      <file id="progress" path="_bmad-output/planning/progress.md">
+        Session-by-session progress log. Contains:
+        - Timestamped entries
+        - What was accomplished
+        - Blockers encountered
+        - Next steps
+      </file>
+    </files>
+  </context>
+
+  <instructions>
+    <phase id="initialization">
+      <title>Initialize Planning Session</title>
+      <steps>
+        <step order="1">
+          Check if planning files exist in _bmad-output/planning/
+        </step>
+        <step order="2">
+          If files exist, load and display current state:
+          - Show task_plan.md summary (completed vs pending)
+          - Show last progress.md entry
+          - Ask user if continuing or starting fresh
+        </step>
+        <step order="3">
+          If files don't exist or user wants fresh start:
+          - Create _bmad-output/planning/ directory
+          - Create task_plan.md with initial structure
+          - Create findings.md with header
+          - Create progress.md with first entry
+        </step>
+      </steps>
+    </phase>
+
+    <phase id="planning">
+      <title>Task Planning</title>
+      <steps>
+        <step order="1">
+          Understand the user's goal thoroughly.
+          Ask clarifying questions if needed.
+        </step>
+        <step order="2">
+          Break down into subtasks:
+          - Each subtask should be achievable in 1-2 tool calls
+          - Use checkbox format: - [ ] Task description
+          - Group related tasks under headers
+          - Mark dependencies with (depends: #N)
+        </step>
+        <step order="3">
+          Write the task breakdown to task_plan.md:
+          <template>
+# Task Plan: {goal}
+
+## Overview
+{brief description of what we're achieving}
+
+## Tasks
+
+### Phase 1: {phase_name}
+- [ ] 1. {subtask_1}
+- [ ] 2. {subtask_2} (depends: #1)
+
+### Phase 2: {phase_name}
+- [ ] 3. {subtask_3}
+
+## Dependencies
+{list any external dependencies or blockers}
+
+## Notes
+{any important notes}
+          </template>
+        </step>
+        <step order="4">
+          Log the planning session in progress.md
+        </step>
+      </steps>
+    </phase>
+
+    <phase id="research">
+      <title>Research and Discovery</title>
+      <steps>
+        <step order="1">
+          Before implementing, gather necessary context:
+          - Explore relevant files
+          - Understand existing patterns
+          - Identify constraints
+        </step>
+        <step order="2">
+          Document findings in findings.md:
+          <template>
+# Findings
+
+## Code Structure
+{relevant file locations and their purposes}
+
+## Patterns Observed
+{existing patterns to follow}
+
+## Constraints
+{limitations or requirements discovered}
+
+## Key Decisions
+{architectural or implementation decisions}
+          </template>
+        </step>
+      </steps>
+    </phase>
+
+    <phase id="execution">
+      <title>Task Execution</title>
+      <steps>
+        <step order="1">
+          Work through tasks in order from task_plan.md
+        </step>
+        <step order="2">
+          For each task:
+          - Check dependencies are satisfied
+          - Execute the task
+          - Mark complete: - [x] N. {task}
+          - Update progress.md with what was done
+        </step>
+        <step order="3">
+          If blocked, document in findings.md and skip to next unblocked task
+        </step>
+        <step order="4">
+          Periodically save state to files (after each major step)
+        </step>
+      </steps>
+    </phase>
+
+    <phase id="completion">
+      <title>Completion and Review</title>
+      <steps>
+        <step order="1">
+          When all tasks are complete:
+          - Verify all checkboxes are marked
+          - Run any validation (tests, builds)
+          - Update progress.md with completion summary
+        </step>
+        <step order="2">
+          Generate completion summary for user
+        </step>
+      </steps>
+    </phase>
+  </instructions>
+
+  <templates>
+    <template id="task_plan_initial">
+# Task Plan: {GOAL}
+
+Created: {TIMESTAMP}
+Status: In Progress
+
+## Overview
+{DESCRIPTION}
+
+## Tasks
+
+### Phase 1: Setup
+- [ ] 1. {FIRST_TASK}
+
+## Dependencies
+- None identified yet
+
+## Notes
+- Planning session started
+    </template>
+
+    <template id="findings_initial">
+# Findings
+
+Last updated: {TIMESTAMP}
+
+## Code Structure
+*To be populated during research*
+
+## Patterns Observed
+*To be populated during research*
+
+## Constraints
+*To be populated during research*
+
+## Key Decisions
+*To be populated during planning*
+    </template>
+
+    <template id="progress_initial">
+# Progress Log
+
+## Session: {TIMESTAMP}
+
+### Started
+- Initialized planning for: {GOAL}
+
+### Completed
+- Created task plan structure
+
+### Next Steps
+- Begin research phase
+- Break down into detailed tasks
+    </template>
+
+    <template id="progress_entry">
+## Session: {TIMESTAMP}
+
+### Context
+{CONTEXT}
+
+### Completed
+{COMPLETED_ITEMS}
+
+### Blockers
+{BLOCKERS}
+
+### Next Steps
+{NEXT_STEPS}
+    </template>
+  </templates>
+
+  <integration>
+    <bmad>
+      <description>
+        When used within BMAD workflows, this skill integrates with:
+        - Step tracking system
+        - Workflow status updates
+        - Agent memory (if orchestrator is active)
+      </description>
+
+      <output_location>
+        Files are created in the BMAD output directory:
+        {project-root}/_bmad-output/planning/
+      </output_location>
+
+      <hooks>
+        <hook type="StepComplete">
+          Automatically updates progress.md after each workflow step
+        </hook>
+        <hook type="WorkflowEnd">
+          Generates completion summary in progress.md
+        </hook>
+      </hooks>
+    </bmad>
+  </integration>
+</skill>
