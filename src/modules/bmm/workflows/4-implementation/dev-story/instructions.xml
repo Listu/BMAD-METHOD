@@ -267,6 +267,15 @@
     <action>Validate implementation meets ALL story acceptance criteria; enforce quantitative thresholds explicitly</action>
     <action if="regression tests fail">STOP and fix before continuing - identify breaking changes immediately</action>
     <action if="new tests fail">STOP and fix before continuing - ensure implementation correctness</action>
+
+    <!-- UI Visual Validation (auto-triggered when UI files detected in current task) -->
+    <check if="any file modified or created in the current task satisfies ALL of: (1) extension is one of [.tsx, .jsx, .vue, .svelte, .html, .css, .scss, .module.css] AND (2) filename does NOT contain any of [.test., .spec., .service., .config., .mock., .fixture.] AND (3) file path contains at least one of [components/, pages/, views/, screens/, layouts/, ui/]">
+      <action>Use the Skill tool to invoke the skill `ui-ux-pro-max:ui-ux-pro-max` with the following minimal context: the list of UI files modified in this task and the project tech stack (framework, CSS solution). Do NOT pass the full story or specification.</action>
+      <action>Attempt to capture a visual screenshot of the current state using the mcp__chrome-devtools__take_screenshot tool. If successful, save the result to {output_folder}/screenshots/task-{current_task_number}-visual.png</action>
+      <check if="mcp__chrome-devtools__take_screenshot tool is unavailable or returns an error">
+        <output>⚠️ DevTools MCP not available — visual screenshot skipped. To enable visual validation: start Chrome with remote debugging enabled and configure the Chrome DevTools MCP server in your Claude Code settings.</output>
+      </check>
+    </check>
   </step>
 
   <step n="8" goal="Validate and mark task complete ONLY when fully done">

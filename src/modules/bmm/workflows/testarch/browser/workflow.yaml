@@ -1,0 +1,77 @@
+# Test Architect workflow: browser
+name: testarch-browser
+description: "Execute browser journeys with systematic screenshot capture organized by journey folder. Navigates real user flows, captures a screenshot at each significant step, and delivers an organized evidence folder."
+author: "BMad"
+
+# Critical variables from config
+config_source: "{project-root}/_bmad/bmm/config.yaml"
+output_folder: "{config_source}:output_folder"
+user_name: "{config_source}:user_name"
+communication_language: "{config_source}:communication_language"
+document_output_language: "{config_source}:document_output_language"
+date: system-generated
+
+# Workflow components
+installed_path: "{project-root}/_bmad/bmm/workflows/testarch/browser"
+instructions: "{installed_path}/instructions.md"
+validation: "{installed_path}/checklist.md"
+template: false
+
+# Variables and inputs
+variables:
+  # Target application
+  app_url: "" # URL of the running application to test — required if auto_discover_journeys is false
+
+  # Planning artifacts (for journey auto-discovery)
+  planning_artifacts: "{config_source}:planning_artifacts" # Path to folder containing ux-design-specification.md and prd.md
+
+  # Journey configuration
+  journeys: [] # Explicit list of journey names/descriptions; if empty, auto-discover from UX spec or PRD
+  auto_discover_journeys: true # Scan planning artifacts for user journeys when journeys list is empty
+
+  # Output configuration
+  screenshots_dir: "{output_folder}/browser-tests" # Root dir — date subfolder YYYY-MM-DD added at runtime
+  screenshot_format: "png"
+
+  # DevTools behavior
+  devtools_warning_only: true # true = graceful warning and exit if DevTools unavailable (recommended)
+                               # false = HALT if DevTools unavailable
+
+  # Journey execution
+  pause_between_journeys: false # Ask user to confirm between journeys (useful for debugging)
+  capture_accessibility_snapshot: true # Capture a11y snapshot at end of each journey
+
+# Output
+default_output_file: "{output_folder}/browser-tests-summary.md"
+
+# Required MCP tools
+required_tools:
+  - mcp__chrome-devtools__list_pages      # Preflight DevTools check
+  - mcp__chrome-devtools__navigate_page   # Navigate to URLs
+  - mcp__chrome-devtools__take_screenshot # Capture screenshots
+  - mcp__chrome-devtools__take_snapshot   # Accessibility snapshot
+  - mcp__chrome-devtools__click           # Interact — click elements
+  - mcp__chrome-devtools__fill            # Interact — fill inputs
+  - mcp__chrome-devtools__type_text       # Interact — type text
+  - mcp__chrome-devtools__wait_for        # Wait for content
+
+# Optional capabilities (conceptual operations performed by the agent — not MCP tool names)
+# optional_capabilities:
+#   - Read planning artifacts (UX spec / PRD) for journey discovery
+#   - Write summary report markdown file
+#   - Create journey screenshot directories on disk
+
+tags:
+  - qa
+  - browser
+  - screenshots
+  - journeys
+  - visual-testing
+  - e2e-evidence
+
+execution_hints:
+  interactive: true   # Communicates journey progress to user
+  autonomous: false   # Waits for user if journey discovery is ambiguous
+  iterative: true     # Runs through each journey sequentially
+
+web_bundle: false

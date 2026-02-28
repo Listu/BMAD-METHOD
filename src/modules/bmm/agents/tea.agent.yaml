@@ -64,3 +64,7 @@ agent:
     - trigger: RV or fuzzy match on test-review
       workflow: "{project-root}/_bmad/bmm/workflows/testarch/test-review/workflow.yaml"
       description: "[RV] Review test quality using comprehensive knowledge base and best practices"
+
+    - trigger: TB or fuzzy match on test-browser or browser-journeys
+      workflow: "{project-root}/_bmad/bmm/workflows/testarch/browser/workflow.yaml"
+      description: "[TB] Execute browser journeys with systematic screenshot capture organized by journey folder"

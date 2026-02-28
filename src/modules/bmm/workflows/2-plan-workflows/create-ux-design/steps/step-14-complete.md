@@ -61,6 +61,8 @@ I've successfully collaborated with you to create a comprehensive UX design spec
 - ✅ Component strategy and custom component specifications
 - ✅ UX consistency patterns for common interactions
 - ✅ Responsive design and accessibility strategy
+- ✅ Visual mockups created in Pencil (.pen format) *(if step 14b was executed)*
+- ✅ Design system implementation rules generated (ui-ux-pro-max) *(if step 14b was executed)*
 
 **The complete UX design specification is now available at:** `{planning_artifacts}/ux-design-specification.md`
 
@@ -183,6 +185,8 @@ Confirm completion with user:
 - [ ] Component strategy and specifications
 - [ ] UX consistency patterns documentation
 - [ ] Responsive design and accessibility strategy
+- [ ] Visual mockups created in Pencil (.pen file)
+- [ ] Design system implementation rules generated and appended to spec
 
 ### Process Complete:
 

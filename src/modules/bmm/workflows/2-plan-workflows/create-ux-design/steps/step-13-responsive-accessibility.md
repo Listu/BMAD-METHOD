@@ -259,6 +259,6 @@ When user selects 'C', append the content directly to the document using the str
 
 ## NEXT STEP:
 
-After user selects 'C' and content is saved to document, load `./step-14-complete.md` to finalize the UX design workflow.
+After user selects 'C' and content is saved to document, load `./step-14b-uiux-tools.md` to generate visual mockups and design system implementation.
 
-Remember: Do NOT proceed to step-14 until user explicitly selects 'C' from the A/P/C menu and content is saved!
+Remember: Do NOT proceed to step-14b-uiux-tools until user explicitly selects 'C' from the A/P/C menu and content is saved!
